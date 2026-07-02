@@ -341,12 +341,13 @@ html.nav-open,html.nav-open body{overflow:hidden}
 .sf-inner{display:grid;grid-template-columns:0.95fr 1.25fr 1.25fr;align-items:stretch}
 .sf-c{display:flex;flex-direction:column;padding-top:clamp(44px,6vh,78px);padding-bottom:clamp(30px,4vh,48px)}
 .sf-c1{padding-left:var(--mx);padding-right:clamp(26px,3vw,56px)}
-.sf-c2{border-left:1px solid var(--line);padding-left:clamp(28px,3.4vw,64px);padding-right:clamp(26px,3vw,56px)}
-.sf-c3{border-left:1px solid var(--line);padding-left:clamp(28px,3.4vw,64px);padding-right:var(--mx)}
+.sf-c2{border-left:1px solid var(--line-2);padding-left:clamp(28px,3.4vw,64px);padding-right:clamp(26px,3vw,56px)}
+.sf-c3{border-left:1px solid var(--line-2);padding-left:clamp(28px,3.4vw,64px);padding-right:var(--mx)}
 .sf-hd{font-family:var(--lb);text-transform:uppercase;font-size:.7rem;letter-spacing:.04em;color:var(--t4);margin-bottom:clamp(26px,4vh,46px)}
-.sf-mark svg{width:clamp(60px,6.5vw,100px);height:auto;display:block}
-.sf-mark svg path[fill="none"]{stroke:var(--fg)}
+.sf-logo img{width:clamp(118px,13vw,180px);height:auto;display:block}
 .sf-sec{border-top:1px solid var(--line);margin-top:clamp(32px,5vh,54px);padding-top:clamp(28px,4vh,44px)}
+.sf-join{margin-bottom:clamp(30px,5vh,56px)}
+.sf-join .btn{padding:14px 26px;font-size:.74rem}
 .sf-place{margin-top:auto}
 .sf-jointxt{color:var(--t2);font-size:1rem;line-height:1.55;max-width:34ch;margin-bottom:26px}
 .sf-built{font-family:var(--hd);font-weight:500;font-size:1.05rem;color:var(--fg);margin-bottom:16px}
@@ -355,8 +356,9 @@ html.nav-open,html.nav-open body{overflow:hidden}
 .sf-links a:hover{color:var(--fg)}
 .sf-copy{font-family:var(--lb);text-transform:uppercase;font-size:.68rem;letter-spacing:.04em;color:var(--t4)}
 .sf-nav{display:flex;flex-direction:column;gap:clamp(4px,.8vh,12px)}
-.sf-nav a{font-family:var(--hd);font-weight:500;font-size:clamp(1.5rem,2.7vw,2.5rem);line-height:1.16;
-  letter-spacing:-.02em;color:var(--t3);width:fit-content;transition:color .3s}
+.sf-nav a{font-family:var(--hd);font-weight:500;font-size:clamp(1.55rem,2.6vw,2.4rem);line-height:1.08;
+  letter-spacing:-.02em;color:var(--t2);width:fit-content;transition:color .3s}
+.sf-nav a:first-child{color:var(--fg)}
 .sf-nav a:hover{color:var(--fg)}
 .sf-connect{margin-top:auto;padding-top:clamp(30px,5vh,56px)}
 .sf-connect .sf-hd{margin-bottom:16px}

@@ -3,11 +3,8 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="sf-inner">
         <div className="sf-c sf-c1">
-          <div className="sf-mark" aria-hidden="true">
-            <svg viewBox="0 0 60 52">
-              <path d="M30 4 L56 48 L4 48 Z" fill="none" strokeWidth="2.6" />
-              <path d="M30 4 L43 26 L17 26 Z" fill="#f1f0ea" />
-            </svg>
+          <div className="sf-logo" aria-hidden="true">
+            <img src="/assets/brand/cta-logo-white.svg" alt="" />
           </div>
 
           <div className="sf-sec sf-join">
