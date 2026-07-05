@@ -10,10 +10,25 @@ export const metadata: Metadata = {
 // and per-year tick density carries the true time scale within each era.
 const TL_START = 1979;
 const TL_END = 2026;
-const TL_MAJORS = [1979, 1985, 1995, 2026];
+const TL_MAJORS = [1979, 1985, 1995, 2026] as const;
+const TL_SEGS = [
+  [1979, 1985, 0, 25],
+  [1985, 1995, 25, 50],
+  [1995, 2026, 50, 100],
+] as const;
 const TL_YEARS = Array.from({ length: TL_END - TL_START + 1 }, (_, i) => TL_START + i);
-const tlPos = (y: number) =>
-  y <= 1985 ? ((y - 1979) / 6) * 25 : y <= 1995 ? 25 + ((y - 1985) / 10) * 25 : 50 + ((y - 1995) / 31) * 50;
+const tlPos = (y: number) => {
+  for (const [y0, y1, p0, p1] of TL_SEGS) {
+    if (y <= y1) return p0 + ((y - y0) / (y1 - y0)) * (p1 - p0);
+  }
+  return 100;
+};
+const TL_EVENTS = [
+  { year: "1979", pos: tlPos(1979), title: "NASA Viking Mars", desc: "Founded by the team that built the automation technology for NASA's Viking Mars program." },
+  { year: "1985", pos: tlPos(1985), title: "Hardware capability", desc: "Special-purpose hardware design, fabrication, and test established for mission-critical operations." },
+  { year: "1995", pos: tlPos(1995), title: "EW manufacturing", desc: "Begins manufacturing Electronic Warfare systems integrated onto U.S. Navy aircraft." },
+  { year: "Today", pos: tlPos(2026), title: "AI / VFusion", desc: "Applied AI and semantic enrichment for defense, intelligence, and healthcare decision support." },
+] as const;
 
 export default function About() {
   return (
@@ -45,17 +60,28 @@ export default function About() {
         <section className="her wrap" id="heritage" data-frame>
           <div className="label dim" data-rv>Origins / 1979 → Today</div>
           <h2 className="disp" data-split>A lineage of systems that cannot fail</h2>
-          <div className="tlx" data-tl>
+          <div className="tlx" data-tl data-tl-segs={JSON.stringify(TL_SEGS)}>
             <div className="tl-ruler" aria-hidden="true">
+              <div className="tl-era">
+                <i style={{ left: "12.5%", width: "25%" }} />
+                <i style={{ left: "37.5%", width: "25%" }} />
+                <i style={{ left: "75%", width: "50%" }} />
+              </div>
               {TL_YEARS.map((y) => (
                 <span
                   key={y}
-                  className={TL_MAJORS.includes(y) ? "tk mj" : y % 5 === 0 ? "tk md" : "tk"}
+                  className={TL_MAJORS.includes(y as (typeof TL_MAJORS)[number]) ? "tk mj" : y % 5 === 0 ? "tk md" : "tk"}
                   style={{ left: `${tlPos(y)}%` }}
+                  data-y={y}
                 />
               ))}
               {TL_MAJORS.map((y) => (
-                <span key={`n${y}`} className="nd" style={{ left: `${tlPos(y)}%` }} />
+                <span key={`n${y}`} className="nd mid" style={{ left: `${tlPos(y)}%` }} data-y={y} />
+              ))}
+              {TL_MAJORS.map((y) => (
+                <span key={`l${y}`} className={`ym mid${y === 2026 ? " end" : ""}`} style={{ left: `${tlPos(y)}%` }}>
+                  {y === 2026 ? "Today" : y}
+                </span>
               ))}
               <i className="tl-base" />
               <i className="tl-fill" />
@@ -63,21 +89,29 @@ export default function About() {
             </div>
             {/* vertical drops from each milestone node into its text column */}
             <div className="tl-gap" aria-hidden="true">
-              <i className="dp" style={{ left: "0%" }} />
-              <i className="dp" style={{ left: "25%" }} />
-              <i className="dp" style={{ left: "50%" }} />
-              <i className="dp" style={{ left: "100%" }} />
+              <i className="dp mid" style={{ left: "0%" }} />
+              <i className="dp mid" style={{ left: "25%" }} />
+              <i className="dp mid" style={{ left: "50%" }} />
+              <i className="dp mid" style={{ left: "100%" }} />
             </div>
             <div className="tl">
-              <div className="ev" data-rv><div className="yr disp">1979</div><div className="ti">NASA Viking Mars</div><div className="ds">Founded by the team that built the automation technology for NASA&apos;s Viking Mars program.</div></div>
-              <div className="ev" data-rv><div className="yr disp">1985</div><div className="ti">Hardware capability</div><div className="ds">Special-purpose hardware design, fabrication, and test established for mission-critical operations.</div></div>
-              <div className="ev" data-rv><div className="yr disp">1995</div><div className="ti">EW manufacturing</div><div className="ds">Begins manufacturing Electronic Warfare systems integrated onto U.S. Navy aircraft.</div></div>
-              <div className="ev" data-rv><div className="yr disp">Today</div><div className="ti">AI / VFusion</div><div className="ds">Applied AI and semantic enrichment for defense, intelligence, and healthcare decision support.</div></div>
+              {TL_EVENTS.map((ev) => (
+                <div
+                  key={ev.year}
+                  className="ev"
+                  data-rv
+                  style={{ left: `${ev.pos}%` }}
+                >
+                  <div className="yr disp" data-year={ev.year}>{ev.year}</div>
+                  <div className="ti">{ev.title}</div>
+                  <div className="ds">{ev.desc}</div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        <section className="psec wrap egrid" data-frame>
+        <section className="psec wrap egrid post-tl" data-frame>
           <div className="rail">
             <div className="label dim" data-rv>01</div>
             <div className="label dim" data-rv>Doctrine</div>

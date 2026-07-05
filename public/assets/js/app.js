@@ -735,23 +735,99 @@
     });
   }
 
+  // instrument decode — each character is a fixed-width cell sized to its
+  // final glyph (the block never shifts). cells lock left-to-right on a steady
+  // march; unresolved cells cycle glyphs at a readable ~15Hz, dimmed, so a
+  // frozen frame reads as "resolving", never as a typo.
+  function scrambleYear(el, finalText, opts) {
+    if (!el || !finalText) return;
+    opts = opts || {};
+    var duration = opts.duration == null ? 0.8 : opts.duration;
+    if (el._scrambleTween) el._scrambleTween.kill();
+    el.classList.add('is-scrambling');
+
+    var chars = finalText.split('');
+    var cells = [];
+    el.textContent = '';
+    chars.forEach(function (c) {
+      var s = document.createElement('span');
+      s.className = 'sc';
+      s.textContent = c;
+      el.appendChild(s);
+      cells.push(s);
+    });
+    var widths = cells.map(function (s) { return s.getBoundingClientRect().width; });
+    cells.forEach(function (s, i) { s.style.width = widths[i].toFixed(2) + 'px'; });
+
+    function glyphFor(i, cur) {
+      var pool = /\d/.test(chars[i]) ? '0123456789' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      var g;
+      do { g = pool.charAt(Math.floor(Math.random() * pool.length)); }
+      while (g === cur || g.toLowerCase() === chars[i].toLowerCase());
+      return g;
+    }
+    cells.forEach(function (s, i) { s.classList.add('u'); s.textContent = glyphFor(i, ''); });
+
+    var head = 0.12;                                // brief all-cycling beat
+    var step = (duration - head) / chars.length;    // then lock left-to-right
+    var state = { t: 0 };
+    var lastSwap = 0;
+    el._scrambleTween = gsap.to(state, {
+      t: duration,
+      duration: duration,
+      ease: 'none',
+      onUpdate: function () {
+        var swap = state.t - lastSwap >= 0.066;
+        if (swap) lastSwap = state.t;
+        for (var i = 0; i < cells.length; i++) {
+          if (state.t >= head + (i + 1) * step) {
+            if (cells[i].classList.contains('u')) {
+              cells[i].classList.remove('u');
+              cells[i].textContent = chars[i];
+            }
+          } else if (swap) {
+            cells[i].textContent = glyphFor(i, cells[i].textContent);
+          }
+        }
+      },
+      onComplete: function () {
+        for (var i = 0; i < cells.length; i++) {
+          cells[i].classList.remove('u');
+          cells[i].textContent = chars[i];
+        }
+        el.classList.remove('is-scrambling');
+        el._scrambleTween = null;
+      }
+    });
+  }
+
+  function resetYear(el) {
+    if (!el) return;
+    if (el._scrambleTween) { el._scrambleTween.kill(); el._scrambleTween = null; }
+    el.classList.remove('is-scrambling');
+    el.textContent = el.getAttribute('data-year') || el.textContent;
+  }
+
   // about heritage: instrument ruler. milestones sit above their text columns
   // (0/25/50/100); per-year tick density carries the true time scale within each
-  // era. a lerp-smoothed playhead scrubs 1979 -> today with the section's scroll,
-  // brightening each era and drawing its drop line as it crosses.
+  // era. in-flow scroll scrubs 1979 -> today with a lerp-smoothed playhead.
   function initTimeline() {
     var root = document.querySelector('[data-tl]');
     if (!root) return;
+    var section = document.getElementById('heritage');
     var ph = root.querySelector('.tl-ph'), ro = root.querySelector('.tl-ro');
     var evs = root.querySelectorAll('.tl .ev');
     var drops = root.querySelectorAll('.tl-gap .dp');
     var ticks = root.querySelectorAll('.tl-ruler .tk');
     var nodes = root.querySelectorAll('.tl-ruler .nd');
+    var eras = root.querySelectorAll('.tl-ruler .tl-era i');
+    var labels = root.querySelectorAll('.tl-ruler .ym');
     var base = root.querySelector('.tl-base'), fill = root.querySelector('.tl-fill');
-    // reduced motion / mobile keep the static, fully-lit layout
     if (reduced || window.matchMedia('(max-width:820px)').matches) return;
-    // ruler % -> year, piecewise per era (matches tlPos in the page markup)
-    var segs = [[1979, 1985, 0, 25], [1985, 1995, 25, 50], [1995, 2026, 50, 100]];
+
+    var segs = JSON.parse(root.getAttribute('data-tl-segs') || '[[1979,1985,0,25],[1985,1995,25,50],[1995,2026,50,100]]');
+    function posOf(el) { return parseFloat(el.style.left) || 0; }
+    function anchorX(_p) { return -50; }
     function yearAt(p) {
       for (var i = 0; i < segs.length; i++) {
         var s = segs[i];
@@ -760,47 +836,103 @@
     }
     var marks = [0, 25, 50, 100];
     var on = [false, false, false, false];
-    gsap.set(ticks, { scaleY: 0 });
-    gsap.set(nodes, { opacity: 0 });
-    gsap.set(drops, { scaleY: 0 });
-    gsap.set(base, { scaleX: 0 });
-    evs.forEach(function (ev) { ev.classList.add('dm'); });
-    ScrollTrigger.create({
-      trigger: root, start: 'top 88%', once: true,
-      onEnter: function () {
-        gsap.to(base, { scaleX: 1, duration: 1.1, ease: 'power3.inOut' });
-        gsap.to(ticks, { scaleY: 1, duration: 0.7, ease: 'power2.out', stagger: 0.012 });
-        gsap.to(nodes, { opacity: 1, duration: 0.45, delay: 0.4, stagger: 0.07 });
-        gsap.to(ph, { opacity: 1, duration: 0.4, delay: 0.55 });
-      }
+    var hit = [false, false, false, false];
+    var revealed = false;
+    var lastRo = '';
+
+    ticks.forEach(function (tk) { gsap.set(tk, { xPercent: anchorX(posOf(tk)), scaleY: 0, transformOrigin: 'bottom center' }); });
+    nodes.forEach(function (nd) {
+      gsap.set(nd, { xPercent: anchorX(posOf(nd)), rotation: 45, opacity: 0, scale: 0.4, transformOrigin: 'center center' });
     });
+    labels.forEach(function (lb) { gsap.set(lb, { xPercent: anchorX(posOf(lb)), opacity: 0, y: 6 }); });
+    drops.forEach(function (dp) { gsap.set(dp, { xPercent: anchorX(posOf(dp)), scaleY: 0, transformOrigin: 'top center' }); });
+    gsap.set(base, { scaleX: 0, transformOrigin: 'left center' });
+    gsap.set(eras, { opacity: 0 });
+    evs.forEach(function (ev) { ev.classList.add('dm'); });
+
+    function revealRuler() {
+      if (revealed) return;
+      revealed = true;
+      gsap.to(base, { scaleX: 1, duration: 1.15, ease: 'power3.inOut' });
+      gsap.to(ticks, {
+        scaleY: 1, duration: 0.55, ease: 'power2.out',
+        stagger: { amount: 0.85, from: 'start' },
+        xPercent: function (_i, el) { return anchorX(posOf(el)); }
+      });
+      gsap.to(eras, { opacity: 1, duration: 0.9, delay: 0.15, stagger: 0.08 });
+      gsap.to(labels, {
+        opacity: 1, y: 0, duration: 0.55, delay: 0.35, stagger: 0.06, ease: 'power2.out',
+        xPercent: function (_i, el) { return anchorX(posOf(el)); }
+      });
+      gsap.to(nodes, {
+        opacity: 1, scale: 1, duration: 0.5, delay: 0.45, stagger: 0.08, ease: 'back.out(2)',
+        xPercent: function (_i, el) { return anchorX(posOf(el)); },
+        rotation: 45
+      });
+      gsap.to(ph, { opacity: 1, duration: 0.35, delay: 0.65 });
+    }
+
     function setEv(i, o) {
       if (on[i] === o) return;
       on[i] = o;
+      var yr = evs[i].querySelector('.yr');
       evs[i].classList.toggle('dm', !o);
-      gsap.to(drops[i], { scaleY: o ? 1 : 0, duration: 0.5, ease: 'power2.out', overwrite: true });
+      gsap.to(drops[i], {
+        xPercent: anchorX(posOf(drops[i])),
+        scaleY: o ? 1 : 0, duration: 0.55, ease: 'power2.out', overwrite: true
+      });
+      if (o) {
+        if (!hit[i]) {
+          hit[i] = true;
+          scrambleYear(yr, yr.getAttribute('data-year') || yr.textContent, { duration: 0.8 });
+        }
+        gsap.fromTo(yr, { y: 10 }, { y: 0, duration: 0.65, ease: 'power3.out' });
+      } else {
+        hit[i] = false;
+        resetYear(yr);
+      }
     }
-    // scroll only sets the target; a ticker lerps toward it so the playhead,
-    // fill, and year counter glide instead of stepping with wheel chunks.
+
     var target = 0, smooth = 0, idle = false;
-    ScrollTrigger.create({
-      trigger: root, start: 'top 74%', end: 'bottom 42%',
-      onUpdate: function (self) { target = self.progress * 100; }
-    });
-    gsap.ticker.add(function () {
+    function syncPlayhead() {
       var d = target - smooth;
-      if (Math.abs(d) < 0.01) {
+      if (Math.abs(d) < 0.008) {
         if (idle) return;
         smooth = target; idle = true;
       } else {
-        smooth += d * 0.14; idle = false;
+        smooth += d * 0.12; idle = false;
       }
       ph.style.left = smooth + '%';
       fill.style.transform = 'scaleX(' + (smooth / 100) + ')';
-      ro.textContent = smooth > 99.4 ? 'TODAY' : String(Math.round(yearAt(Math.max(0, smooth))));
-      ro.style.transform = smooth < 4 ? 'translateX(0)' : (smooth > 93 ? 'translateX(-100%)' : 'translateX(-50%)');
-      for (var i = 0; i < marks.length; i++) setEv(i, smooth >= marks[i] - 0.2);
+      var newRo = smooth > 99.2 ? 'TODAY' : String(Math.round(yearAt(Math.max(0, Math.min(100, smooth)))));
+      if (newRo !== lastRo) { ro.textContent = newRo; lastRo = newRo; }
+      for (var i = 0; i < marks.length; i++) setEv(i, smooth >= marks[i] - 0.15);
+    }
+
+    ScrollTrigger.create({
+      trigger: section || root,
+      start: 'top 78%',
+      once: true,
+      onEnter: revealRuler
     });
+
+    // pinned pass: the section holds for one viewport of scroll while the
+    // playhead sweeps 1979 -> today, so each era decodes as its own beat.
+    // the sweep completes at 88% of the hold so TODAY settles before release;
+    // default pinSpacing keeps the doctrine block from sliding underneath.
+    ScrollTrigger.create({
+      trigger: section || root,
+      pin: section || root,
+      start: function () {
+        var el = section || root;
+        return 'top ' + Math.max(0, Math.round((window.innerHeight - el.offsetHeight) / 2)) + 'px';
+      },
+      end: '+=100%',
+      anticipatePin: 1,
+      onUpdate: function (self) { target = Math.min(100, (self.progress / 0.88) * 100); }
+    });
+
+    gsap.ticker.add(syncPlayhead);
   }
 
   // boot
