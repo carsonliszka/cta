@@ -1,6 +1,6 @@
 # cta
 
-Marketing site for CTA Inc. Next.js (app router) + typescript. bespoke black-and-white
+Marketing site for CTA Inc. Next.js (app router) + typescript. black-and-white
 design with a webgl intro loader and gsap / scrolltrigger / lenis motion.
 
 ## develop

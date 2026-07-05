@@ -6,6 +6,15 @@ export const metadata: Metadata = {
     "CTA was formed in 1979 by the engineers who built the automation technology for NASA's Viking Mars missions. A systems-engineering firm for defense, intelligence, and healthcare.",
 };
 
+// heritage ruler: milestones anchor to the text columns (0 / 25 / 50 / 100),
+// and per-year tick density carries the true time scale within each era.
+const TL_START = 1979;
+const TL_END = 2026;
+const TL_MAJORS = [1979, 1985, 1995, 2026];
+const TL_YEARS = Array.from({ length: TL_END - TL_START + 1 }, (_, i) => TL_START + i);
+const tlPos = (y: number) =>
+  y <= 1985 ? ((y - 1979) / 6) * 25 : y <= 1995 ? 25 + ((y - 1985) / 10) * 25 : 50 + ((y - 1995) / 31) * 50;
+
 export default function About() {
   return (
     <>
@@ -36,11 +45,35 @@ export default function About() {
         <section className="her wrap" id="heritage" data-frame>
           <div className="label dim" data-rv>Origins / 1979 → Today</div>
           <h2 className="disp" data-split>A lineage of systems that cannot fail</h2>
-          <div className="tl">
-            <div className="ev" data-rv><div className="yr disp">1979</div><div className="ti">NASA Viking Mars</div><div className="ds">Founded by the team that built the automation technology for NASA&apos;s Viking Mars program.</div></div>
-            <div className="ev" data-rv><div className="yr disp">1985</div><div className="ti">Hardware capability</div><div className="ds">Special-purpose hardware design, fabrication, and test established for mission-critical operations.</div></div>
-            <div className="ev" data-rv><div className="yr disp">1995</div><div className="ti">EW manufacturing</div><div className="ds">Begins manufacturing Electronic Warfare systems integrated onto U.S. Navy aircraft.</div></div>
-            <div className="ev" data-rv><div className="yr disp">Today</div><div className="ti">AI / VFusion</div><div className="ds">Applied AI and semantic enrichment for defense, intelligence, and healthcare decision support.</div></div>
+          <div className="tlx" data-tl>
+            <div className="tl-ruler" aria-hidden="true">
+              {TL_YEARS.map((y) => (
+                <span
+                  key={y}
+                  className={TL_MAJORS.includes(y) ? "tk mj" : y % 5 === 0 ? "tk md" : "tk"}
+                  style={{ left: `${tlPos(y)}%` }}
+                />
+              ))}
+              {TL_MAJORS.map((y) => (
+                <span key={`n${y}`} className="nd" style={{ left: `${tlPos(y)}%` }} />
+              ))}
+              <i className="tl-base" />
+              <i className="tl-fill" />
+              <div className="tl-ph"><span className="tl-ro">1979</span></div>
+            </div>
+            {/* vertical drops from each milestone node into its text column */}
+            <div className="tl-gap" aria-hidden="true">
+              <i className="dp" style={{ left: "0%" }} />
+              <i className="dp" style={{ left: "25%" }} />
+              <i className="dp" style={{ left: "50%" }} />
+              <i className="dp" style={{ left: "100%" }} />
+            </div>
+            <div className="tl">
+              <div className="ev" data-rv><div className="yr disp">1979</div><div className="ti">NASA Viking Mars</div><div className="ds">Founded by the team that built the automation technology for NASA&apos;s Viking Mars program.</div></div>
+              <div className="ev" data-rv><div className="yr disp">1985</div><div className="ti">Hardware capability</div><div className="ds">Special-purpose hardware design, fabrication, and test established for mission-critical operations.</div></div>
+              <div className="ev" data-rv><div className="yr disp">1995</div><div className="ti">EW manufacturing</div><div className="ds">Begins manufacturing Electronic Warfare systems integrated onto U.S. Navy aircraft.</div></div>
+              <div className="ev" data-rv><div className="yr disp">Today</div><div className="ti">AI / VFusion</div><div className="ds">Applied AI and semantic enrichment for defense, intelligence, and healthcare decision support.</div></div>
+            </div>
           </div>
         </section>
 

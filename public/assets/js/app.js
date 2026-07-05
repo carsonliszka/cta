@@ -735,6 +735,74 @@
     });
   }
 
+  // about heritage: instrument ruler. milestones sit above their text columns
+  // (0/25/50/100); per-year tick density carries the true time scale within each
+  // era. a lerp-smoothed playhead scrubs 1979 -> today with the section's scroll,
+  // brightening each era and drawing its drop line as it crosses.
+  function initTimeline() {
+    var root = document.querySelector('[data-tl]');
+    if (!root) return;
+    var ph = root.querySelector('.tl-ph'), ro = root.querySelector('.tl-ro');
+    var evs = root.querySelectorAll('.tl .ev');
+    var drops = root.querySelectorAll('.tl-gap .dp');
+    var ticks = root.querySelectorAll('.tl-ruler .tk');
+    var nodes = root.querySelectorAll('.tl-ruler .nd');
+    var base = root.querySelector('.tl-base'), fill = root.querySelector('.tl-fill');
+    // reduced motion / mobile keep the static, fully-lit layout
+    if (reduced || window.matchMedia('(max-width:820px)').matches) return;
+    // ruler % -> year, piecewise per era (matches tlPos in the page markup)
+    var segs = [[1979, 1985, 0, 25], [1985, 1995, 25, 50], [1995, 2026, 50, 100]];
+    function yearAt(p) {
+      for (var i = 0; i < segs.length; i++) {
+        var s = segs[i];
+        if (p <= s[3] || i === segs.length - 1) return s[0] + ((p - s[2]) / (s[3] - s[2])) * (s[1] - s[0]);
+      }
+    }
+    var marks = [0, 25, 50, 100];
+    var on = [false, false, false, false];
+    gsap.set(ticks, { scaleY: 0 });
+    gsap.set(nodes, { opacity: 0 });
+    gsap.set(drops, { scaleY: 0 });
+    gsap.set(base, { scaleX: 0 });
+    evs.forEach(function (ev) { ev.classList.add('dm'); });
+    ScrollTrigger.create({
+      trigger: root, start: 'top 88%', once: true,
+      onEnter: function () {
+        gsap.to(base, { scaleX: 1, duration: 1.1, ease: 'power3.inOut' });
+        gsap.to(ticks, { scaleY: 1, duration: 0.7, ease: 'power2.out', stagger: 0.012 });
+        gsap.to(nodes, { opacity: 1, duration: 0.45, delay: 0.4, stagger: 0.07 });
+        gsap.to(ph, { opacity: 1, duration: 0.4, delay: 0.55 });
+      }
+    });
+    function setEv(i, o) {
+      if (on[i] === o) return;
+      on[i] = o;
+      evs[i].classList.toggle('dm', !o);
+      gsap.to(drops[i], { scaleY: o ? 1 : 0, duration: 0.5, ease: 'power2.out', overwrite: true });
+    }
+    // scroll only sets the target; a ticker lerps toward it so the playhead,
+    // fill, and year counter glide instead of stepping with wheel chunks.
+    var target = 0, smooth = 0, idle = false;
+    ScrollTrigger.create({
+      trigger: root, start: 'top 74%', end: 'bottom 42%',
+      onUpdate: function (self) { target = self.progress * 100; }
+    });
+    gsap.ticker.add(function () {
+      var d = target - smooth;
+      if (Math.abs(d) < 0.01) {
+        if (idle) return;
+        smooth = target; idle = true;
+      } else {
+        smooth += d * 0.14; idle = false;
+      }
+      ph.style.left = smooth + '%';
+      fill.style.transform = 'scaleX(' + (smooth / 100) + ')';
+      ro.textContent = smooth > 99.4 ? 'TODAY' : String(Math.round(yearAt(Math.max(0, smooth))));
+      ro.style.transform = smooth < 4 ? 'translateX(0)' : (smooth > 93 ? 'translateX(-100%)' : 'translateX(-50%)');
+      for (var i = 0; i < marks.length; i++) setEv(i, smooth >= marks[i] - 0.2);
+    });
+  }
+
   // boot
   function boot() {
     initGrain();
@@ -744,6 +812,7 @@
     initMega();
     initMobileNav();
     initPageNav();
+    initTimeline();
     var navEl = document.querySelector('nav');
     if (navEl) {
       var ns = function () { navEl.classList.toggle('scrolled', (window.scrollY || window.pageYOffset || 0) > 40); };

@@ -212,16 +212,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="man wrap">
-          <div className="lead disp" data-split>We don&apos;t just write code.</div>
-          <div className="lines">
-            <div className="ln2" data-rv><span className="ix">01</span>We push envelopes.</div>
-            <div className="ln2" data-rv><span className="ix">02</span>We engineer systems.</div>
-            <div className="ln2" data-rv><span className="ix">03</span>We become a part of your team.</div>
-            <div className="ln2" data-rv><span className="ix">04</span>We learn voraciously.</div>
-          </div>
-        </section>
-
         <section className="work wrap" id="work">
           <div className="hd">
             <div>
@@ -238,12 +228,7 @@ export default function Home() {
         <section className="her wrap" id="her">
           <div className="label dim" data-rv>Since 1979 / A proud tradition of success</div>
           <h2 className="disp" data-split>Formed by the engineers behind NASA&apos;s Viking Mars missions</h2>
-          <div className="tl">
-            <div className="ev" data-rv><div className="yr disp">1979</div><div className="ti">NASA Viking Mars</div><div className="ds">Founded by the team that built the automation technology for NASA&apos;s Viking Mars program.</div></div>
-            <div className="ev" data-rv><div className="yr disp">1985</div><div className="ti">Hardware capability</div><div className="ds">Special-purpose hardware design, fabrication, and test established for mission-critical operations.</div></div>
-            <div className="ev" data-rv><div className="yr disp">1995</div><div className="ti">EW manufacturing</div><div className="ds">Begins manufacturing Electronic Warfare systems integrated onto U.S. Navy aircraft.</div></div>
-            <div className="ev" data-rv><div className="yr disp">Today</div><div className="ti">AI / VFusion</div><div className="ds">Applied AI and semantic enrichment for defense, intelligence, and healthcare decision support.</div></div>
-          </div>
+          <a className="go" href="/about#heritage" data-rv>Our origins <span className="arw">→</span></a>
         </section>
 
         <section className="close" id="close">
