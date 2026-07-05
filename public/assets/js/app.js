@@ -284,36 +284,32 @@
     gsap.set(heroInners, { yPercent: 0 });
   }
 
-  /* rasterize the loading word at a Gx x Gy cell grid and return the lit cell coords
-     (each becomes one converging square particle). Super-samples then measures
-     per-cell coverage so the blocky letters stay clean and legible. */
+  /* the loading word as hand-authored bitmap glyphs on the cell grid (each lit
+     cell becomes one square). replaces font rasterization so the letterforms
+     are identical on every viewport — no threshold artifacts (clipped ring
+     corners, short I, stray diagonal cells). */
   function rasterLoadingCells(Gx, Gy) {
-    var S = 4, W = Gx * S, H = Gy * S;
-    var c = document.createElement('canvas');
-    c.width = W; c.height = H;
-    var ctx = c.getContext('2d');
-    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    var word = 'LOADING';
-    function setFont(px) {
-      ctx.font = '500 ' + px + 'px HND, "Helvetica Neue", Arial, sans-serif';
-      try { ctx.letterSpacing = Math.max(1, Math.round(px * 0.34)) + 'px'; } catch (e) {}
-    }
-    var fs = Math.floor(H * 0.84);
-    setFont(fs);
-    var maxW = W * 0.96, m = ctx.measureText(word);
-    var inkW = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
-    if (inkW > maxW) { fs = Math.max(6, Math.floor(fs * maxW / inkW)); setFont(fs); m = ctx.measureText(word); }
-    var x = W / 2 - (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2;
-    ctx.fillText(word, x, H / 2 + fs * 0.02);
-    var d = ctx.getImageData(0, 0, W, H).data, cells = [];
-    for (var cy = 0; cy < Gy; cy++) for (var cx = 0; cx < Gx; cx++) {
-      var lit = 0;
-      for (var sy = 0; sy < S; sy++) for (var sx = 0; sx < S; sx++) {
-        if (d[((cy * S + sy) * W + (cx * S + sx)) * 4] > 120) lit++;
+    var GLYPHS = {
+      L: ['X...', 'X...', 'X...', 'X...', 'X...', 'X...', 'XXXX'],
+      O: ['.XXX.', 'X...X', 'X...X', 'X...X', 'X...X', 'X...X', '.XXX.'],
+      A: ['..X..', '.X.X.', '.X.X.', 'X...X', 'XXXXX', 'X...X', 'X...X'],
+      D: ['XXXX.', 'X...X', 'X...X', 'X...X', 'X...X', 'X...X', 'XXXX.'],
+      I: ['X', 'X', 'X', 'X', 'X', 'X', 'X'],
+      N: ['X...X', 'XX..X', 'XX..X', 'X.X.X', 'X..XX', 'X..XX', 'X...X'],
+      G: ['.XXX.', 'X...X', 'X....', 'X..XX', 'X...X', 'X...X', '.XXXX']
+    };
+    var word = 'LOADING', gap = 3, glyphH = 7;
+    var widths = [], total = gap * (word.length - 1);
+    for (var i = 0; i < word.length; i++) { widths.push(GLYPHS[word.charAt(i)][0].length); total += widths[i]; }
+    var x0 = Math.max(0, Math.floor((Gx - total) / 2));
+    var y0 = Math.max(0, Math.floor((Gy - glyphH) / 2));
+    var cells = [], cx = x0;
+    for (var i = 0; i < word.length; i++) {
+      var g = GLYPHS[word.charAt(i)];
+      for (var r = 0; r < glyphH; r++) for (var c = 0; c < widths[i]; c++) {
+        if (g[r].charAt(c) === 'X') cells.push([cx + c, y0 + r]);
       }
-      if (lit / (S * S) > 0.30) cells.push([cx, cy]);
+      cx += widths[i] + gap;
     }
     return cells;
   }
@@ -362,7 +358,9 @@
       'float jitter=(hash21(bId+7.3)-.5)*.12;' +
       'float a=1.-clamp((uExit-rowN*0.60-jitter)/0.24,0.,1.);' +
       'gl_FragColor=vec4(col,a);}}' ;
-    // converging word particles: each lit LOADING cell flies from a scattered start to its target
+    // word recruits: each lit LOADING cell is filled by a real square pulled out
+    // of the built scatter field — same size, same grid, same tone — so the word
+    // assembles from the field instead of arriving as a second system.
     var PVERT =
       'attribute vec2 aTarget;attribute vec2 aStart;attribute vec2 aCtrl;attribute float aRow;attribute float aRand;' +
       'uniform float uForm2;uniform float uPSize;' +
@@ -374,8 +372,7 @@
       'float u=1.0-e;' +
       'vec2 pos=u*u*aStart+2.0*u*e*aCtrl+e*e*aTarget;' +        // quadratic bezier arc (curved path)
       'gl_Position=vec4(pos,0.0,1.0);' +
-      'float g=e*e*(3.0-2.0*e);' +
-      'gl_PointSize=uPSize*(0.32+0.68*g);' +
+      'gl_PointSize=uPSize;' +                                  // field-square size, constant in flight
       'vArr=e;vRow=aRow;vRand=aRand;}';
     var PFRAG =
       'precision highp float;uniform float uExit2;varying float vArr;varying float vRow;varying float vRand;' +
@@ -383,7 +380,7 @@
       'if(max(abs(pc.x),abs(pc.y))>0.36)discard;' +
       'float op=vRand<0.22?0.5:(vRand<0.5?0.78:1.0);' +
       'float bright=0.88+0.12*step(0.5,fract(vRand*7.0));' +
-      'float a=op*smoothstep(0.0,0.82,vArr);' +                 // ease opacity in, full before landing
+      'float a=op*smoothstep(0.0,0.12,vArr);' +                 // appears at launch, from the source square
       'if(uExit2>0.001){a*=1.-clamp((uExit2-vRow*0.60-(vRand-0.5)*0.12)/0.24,0.,1.);}' +
       'if(a<=0.002)discard;' +
       'gl_FragColor=vec4(vec3(bright),a);}';
@@ -414,28 +411,63 @@
       uForm2 = gl.getUniformLocation(pprog, 'uForm2'); uExit2 = gl.getUniformLocation(pprog, 'uExit2');
       uPSize = gl.getUniformLocation(pprog, 'uPSize');
     }
+    // fp32-mimicking twin of the field shader's hash21 — lets JS know which
+    // squares the GPU actually draws, so recruits launch from real squares.
+    function h21(x, y) {
+      var f = Math.fround;
+      var px = f(x * f(123.34)); px = f(px - Math.floor(px));
+      var py = f(y * f(456.21)); py = f(py - Math.floor(py));
+      var d = f(f(px * f(px + f(45.32))) + f(py * f(py + f(45.32))));
+      px = f(px + d); py = f(py + d);
+      var m = f(px * py);
+      return f(m - Math.floor(m));
+    }
     function buildPoints() {
       if (!hasParticles) return;
       var rows = Math.max(1, Math.floor(COLS * cv.height / cv.width));
-      var Gx = Math.round(0.92 * COLS * SUB), Gy = Math.round(0.30 * rows * SUB);
+      var C = COLS * SUB, R = rows * SUB;
+      var Gx = Math.round(0.92 * C), Gy = Math.round(0.30 * R);
+      var c0 = Math.floor((C - Gx) / 2), r0 = Math.floor((R - Gy) / 2);
       var cells = rasterLoadingCells(Gx, Gy);
+      // every square the built field shows (0.415 margin dodges fp32 edge cases)
+      var sources = [];
+      for (var by = 0; by < rows; by++) for (var bx = 0; bx < COLS; bx++)
+        for (var dy = 0; dy < SUB; dy++) for (var dx = 0; dx < SUB; dx++) {
+          if (h21(bx * 9.13 + dx, by * 9.13 + dy) < 0.415) {
+            sources.push({
+              x: ((bx + (dx + 0.5) / SUB) / COLS) * 2 - 1,
+              y: 1 - ((by + (dy + 0.5) / SUB) / rows) * 2,
+              lvl: h21(bx * 2.3 + dx * 0.7, by * 2.3 + dy * 0.7),
+              used: false
+            });
+          }
+        }
       var arr = new Float32Array(cells.length * 8);
       for (var i = 0; i < cells.length; i++) {
-        var cx = cells[i][0], cy = cells[i][1];
-        var ux = 0.5 + ((cx + 0.5) / Gx - 0.5) * 0.92;
-        var uy = 0.5 + ((cy + 0.5) / Gy - 0.5) * 0.30;
-        var tx = ux * 2 - 1, ty = 1 - uy * 2;             // clip-space target
-        var ang = Math.random() * 6.2831, r = 0.6 + Math.random() * 0.7;
-        var sx = Math.cos(ang) * r, sy = Math.sin(ang) * r; // scattered periphery start
-        // control point: midpoint pushed perpendicular so the path arcs in (not a straight line)
+        // word cells sit on the exact field lattice, so recruits land flush
+        var tx = ((c0 + cells[i][0] + 0.5) / C) * 2 - 1;
+        var ty = 1 - ((r0 + cells[i][1] + 0.5) / R) * 2;
+        // nearest unused lit square is the recruit
+        var best = -1, bd = 1e9;
+        for (var s = 0; s < sources.length; s++) {
+          if (sources[s].used) continue;
+          var ddx = sources[s].x - tx, ddy = sources[s].y - ty, d2 = ddx * ddx + ddy * ddy;
+          if (d2 < bd) { bd = d2; best = s; }
+        }
+        var src = best >= 0 ? sources[best] : { x: tx, y: ty, lvl: Math.random() };
+        if (best >= 0) sources[best].used = true;
+        var sx = src.x, sy = src.y;
+        // control point: midpoint pushed perpendicular; curvature scales with
+        // path length so short hops stay near-straight
         var mx = (sx + tx) / 2, my = (sy + ty) / 2, dx = tx - sx, dy = ty - sy;
-        var pl = Math.hypot(dx, dy) || 1, amt = (Math.random() * 2 - 1) * 0.38;
+        var pl = Math.hypot(dx, dy), amt = (Math.random() * 2 - 1) * 0.35 * pl;
         var o = i * 8;
         arr[o] = tx; arr[o + 1] = ty;                     // aTarget
-        arr[o + 2] = sx; arr[o + 3] = sy;                 // aStart
-        arr[o + 4] = mx + (-dy / pl) * amt; arr[o + 5] = my + (dx / pl) * amt; // aCtrl
-        arr[o + 6] = Gy > 1 ? cy / (Gy - 1) : 0;          // aRow (top->bottom)
-        arr[o + 7] = Math.random();                       // aRand
+        arr[o + 2] = sx; arr[o + 3] = sy;                 // aStart (a real field square)
+        arr[o + 4] = pl ? mx + (-dy / pl) * amt : mx;     // aCtrl
+        arr[o + 5] = pl ? my + (dx / pl) * amt : my;
+        arr[o + 6] = Gy > 1 ? cells[i][1] / (Gy - 1) : 0; // aRow (top->bottom)
+        arr[o + 7] = src.lvl;                             // carries the source's tone tier
       }
       pCount = cells.length;
       gl.bindBuffer(gl.ARRAY_BUFFER, pbuf);
@@ -448,7 +480,7 @@
       cv.width = Math.floor(innerWidth * dpr); cv.height = Math.floor(innerHeight * dpr);
       cv.style.width = innerWidth + 'px'; cv.style.height = innerHeight + 'px';
       gl.viewport(0, 0, cv.width, cv.height);
-      pSizePx = cv.width / (COLS * SUB);
+      pSizePx = (cv.width / (COLS * SUB)) * (0.38 / 0.36); // recruit square == field square footprint
       buildPoints();
     }
     window.addEventListener('resize', resize); resize();
