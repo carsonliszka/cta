@@ -855,7 +855,8 @@
     var eras = root.querySelectorAll('.tl-ruler .tl-era i');
     var labels = root.querySelectorAll('.tl-ruler .ym');
     var base = root.querySelector('.tl-base'), fill = root.querySelector('.tl-fill');
-    if (reduced || window.matchMedia('(max-width:820px)').matches) return;
+    if (reduced) return;
+    var isMobile = window.matchMedia('(max-width:820px)').matches;
 
     var segs = JSON.parse(root.getAttribute('data-tl-segs') || '[[1979,1985,0,25],[1985,1995,25,50],[1995,2026,50,100]]');
     function posOf(el) { return parseFloat(el.style.left) || 0; }
@@ -948,21 +949,62 @@
       onEnter: revealRuler
     });
 
-    // pinned pass: the section holds for one viewport of scroll while the
-    // playhead sweeps 1979 -> today, so each era decodes as its own beat.
-    // the sweep completes at 88% of the hold so TODAY settles before release;
-    // default pinSpacing keeps the doctrine block from sliding underneath.
-    ScrollTrigger.create({
-      trigger: section || root,
-      pin: section || root,
-      start: function () {
-        var el = section || root;
-        return 'top ' + Math.max(0, Math.round((window.innerHeight - el.offsetHeight) / 2)) + 'px';
-      },
-      end: '+=100%',
-      anticipatePin: 1,
-      onUpdate: function (self) { target = Math.min(100, (self.progress / 0.88) * 100); }
-    });
+    if (isMobile) {
+      // no pin on mobile: the sticky ruler docks under the nav and the playhead
+      // maps to the era list's scroll, hitting each node exactly as that era's
+      // block crosses the read line at 72% of the viewport.
+      var list = root.querySelector('.tl');
+      var ruler = root.querySelector('.tl-ruler');
+      var dockCheck = function () {
+        ruler.classList.toggle('docked', ruler.getBoundingClientRect().top <= 55);
+      };
+      window.addEventListener('scroll', dockCheck, { passive: true });
+      dockCheck();
+      var th = [0, 0.25, 0.5, 0.75];
+      var refreshTh = function () {
+        var lr = list.getBoundingClientRect();
+        if (!lr.height) return;
+        th = Array.prototype.map.call(evs, function (ev) {
+          return (ev.getBoundingClientRect().top - lr.top) / lr.height;
+        });
+      };
+      refreshTh();
+      ScrollTrigger.create({
+        trigger: list,
+        start: 'top 72%',
+        end: 'bottom 72%',
+        onRefresh: refreshTh,
+        onUpdate: function (self) {
+          var p = self.progress, out = 100;
+          if (p <= th[0]) out = marks[0];
+          else {
+            for (var i = 0; i < th.length - 1; i++) {
+              if (p <= th[i + 1]) {
+                out = marks[i] + ((p - th[i]) / (th[i + 1] - th[i])) * (marks[i + 1] - marks[i]);
+                break;
+              }
+            }
+          }
+          target = out;
+        }
+      });
+    } else {
+      // pinned pass: the section holds for one viewport of scroll while the
+      // playhead sweeps 1979 -> today, so each era decodes as its own beat.
+      // the sweep completes at 88% of the hold so TODAY settles before release;
+      // default pinSpacing keeps the doctrine block from sliding underneath.
+      ScrollTrigger.create({
+        trigger: section || root,
+        pin: section || root,
+        start: function () {
+          var el = section || root;
+          return 'top ' + Math.max(0, Math.round((window.innerHeight - el.offsetHeight) / 2)) + 'px';
+        },
+        end: '+=100%',
+        anticipatePin: 1,
+        onUpdate: function (self) { target = Math.min(100, (self.progress / 0.88) * 100); }
+      });
+    }
 
     gsap.ticker.add(syncPlayhead);
   }
