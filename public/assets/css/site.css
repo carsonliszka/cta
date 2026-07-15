@@ -361,16 +361,11 @@ html.nav-open,html.nav-open body{overflow:hidden}
   .tl-gap{display:none}
   .tlx{--tl-pad:16px;margin-bottom:0}
   .tl-ruler{position:sticky;top:54px;z-index:6;height:96px;margin-bottom:0;background:var(--bg)}
-  /* while docked, cover the side gutters so rail diamonds can't peek past the bg box */
-  .tl-ruler::before,.tl-ruler::after{content:"";position:absolute;top:0;bottom:0;width:calc(var(--mx) + var(--tl-pad));background:var(--bg);z-index:-1;opacity:0}
-  .tl-ruler::before{right:100%}
-  .tl-ruler::after{left:100%}
-  .tl-ruler.docked::before,.tl-ruler.docked::after{opacity:1}
   .tl-ruler .tl-ph{top:44px}
   .tl-ruler .tl-era i{top:44px}
   .tlx .tl{display:block;min-height:0;position:relative;border-top:0;padding-top:12px}
   .tlx .tl .ev{position:relative;left:auto!important;width:auto;transform:none!important;text-align:left!important;padding:22px 0 30px;border-top:1px solid var(--line-2);border-bottom:0}
-  .tlx .tl .ev::before{display:block;top:-1px}
+  .tlx .tl .ev:first-child{border-top:0}
   .tlx .tl .ev .ds{margin-inline:0;max-width:40ch}
   .tl-ph .tl-ro{bottom:calc(100% + 8px)}
   /* about mobile pass: reclaim the post-pin paddings (no pin on mobile),

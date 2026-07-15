@@ -954,12 +954,6 @@
       // maps to the era list's scroll, hitting each node exactly as that era's
       // block crosses the read line at 72% of the viewport.
       var list = root.querySelector('.tl');
-      var ruler = root.querySelector('.tl-ruler');
-      var dockCheck = function () {
-        ruler.classList.toggle('docked', ruler.getBoundingClientRect().top <= 55);
-      };
-      window.addEventListener('scroll', dockCheck, { passive: true });
-      dockCheck();
       var th = [0, 0.25, 0.5, 0.75];
       var refreshTh = function () {
         var lr = list.getBoundingClientRect();
