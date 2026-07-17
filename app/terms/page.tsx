@@ -57,7 +57,7 @@ export default function Terms() {
             <p>The site is controlled and operated by us from the United States. We make no representation that the Content is appropriate or available for use in other locations. If you access the site from elsewhere, you do so on your own initiative and are responsible for compliance with local laws.</p>
 
             <h2>11. Governing law and jurisdiction</h2>
-            <p>This Agreement is governed by the laws of the State of Maryland, without regard to its conflict-of-laws principles. Any legal action or proceeding arising out of or relating to the site or this Agreement will be brought exclusively in the state or federal courts located in Maryland, and you consent to their jurisdiction.</p>
+            <p>This Agreement is governed by the laws of the State of California, without regard to its conflict-of-laws principles. Any legal action or proceeding arising out of or relating to the site or this Agreement will be brought exclusively in the state or federal courts located in California, and you consent to their jurisdiction.</p>
 
             <h2>12. Indemnification</h2>
             <p>You agree to indemnify, defend, and hold harmless CTA and its officers, directors, employees, agents, licensors, and suppliers from and against all losses, expenses, damages, and costs, including reasonable attorneys&apos; fees, resulting from any violation of this Agreement by you.</p>
@@ -75,7 +75,7 @@ export default function Terms() {
             <p>Our failure to enforce any provision is not a waiver of it. Neither the course of dealing between the parties nor trade practice modifies this Agreement. We may assign our rights and obligations under this Agreement at any time without notice. If any provision is found unenforceable, the remaining provisions stay in effect.</p>
 
             <h2>17. Contact</h2>
-            <p>Questions about these terms can be sent through our <a href="/contact">contact page</a>. CTA Inc., Rockville, Maryland.</p>
+            <p>Questions about these terms can be sent through our <a href="/contact">contact page</a>. CTA Inc., Encinitas, California.</p>
 
             <div className="note"><strong>Note.</strong> This document is a starting template for the rebuilt site and is not legal advice. Confirm the legal entity name, governing jurisdiction, export-control language, eligibility age, and liability and indemnification terms with qualified counsel before publishing.</div>
           </div>

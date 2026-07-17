@@ -46,7 +46,7 @@ export default function Accessibility() {
             <p>If you encounter an accessibility barrier on this site, we want to hear about it. Please reach us through our <a href="/contact">contact page</a> and describe the issue and the page involved. We will make reasonable efforts to address it.</p>
 
             <h2>Contact</h2>
-            <p>Accessibility feedback can be sent through our <a href="/contact">contact page</a>. CTA Inc., Rockville, Maryland.</p>
+            <p>Accessibility feedback can be sent through our <a href="/contact">contact page</a>. CTA Inc., Encinitas, California.</p>
 
             <div className="note"><strong>Note.</strong> This statement reflects the site&apos;s current, ongoing accessibility work and should be verified with a full audit, both automated and manual with assistive-technology testing, before launch. Update the conformance status and date to match the audit results.</div>
           </div>

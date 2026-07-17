@@ -77,7 +77,7 @@ export default function Privacy() {
             <p>We may update this notice from time to time. Material changes will be reflected by updating the date shown above, and, where appropriate, by additional notice.</p>
 
             <h2>Contact</h2>
-            <p>Questions about this notice or our privacy practices, and requests to exercise your rights, can be sent through our <a href="/contact">contact page</a>. CTA Inc., Rockville, Maryland.</p>
+            <p>Questions about this notice or our privacy practices, and requests to exercise your rights, can be sent through our <a href="/contact">contact page</a>. CTA Inc., Encinitas, California.</p>
 
             <div className="note"><strong>Note.</strong> This document is a starting template for the rebuilt site and is not legal advice. Confirm the legal entity name, data-retention periods, and any applicable state, federal, or sector privacy requirements (for example CPRA, and GDPR if you serve EU or UK visitors) with qualified counsel before publishing. If you later add cookies, analytics, a careers portal, or other data collection, this notice must be expanded accordingly.</div>
           </div>

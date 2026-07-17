@@ -128,7 +128,7 @@ export default function About() {
         <section className="man wrap" data-frame>
           <div className="lead disp" data-split>We don&apos;t just write code.</div>
           <div className="lines">
-            <div className="ln2" data-rv><span className="ix">01</span>We push envelopes.</div>
+            <div className="ln2" data-rv><span className="ix">01</span>We continually raise the standard.</div>
             <div className="ln2" data-rv><span className="ix">02</span>We engineer systems.</div>
             <div className="ln2" data-rv><span className="ix">03</span>We become a part of your team.</div>
             <div className="ln2" data-rv><span className="ix">04</span>We learn voraciously.</div>

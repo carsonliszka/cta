@@ -142,21 +142,18 @@
     });
   });
 
-  /* stat counters */
+  /* stat numbers: instrument decode on scroll-in (same vocabulary as the
+     heritage ruler). final text is set up front so the tiles never reflow. */
   document.querySelectorAll('[data-count]').forEach(function (el) {
-    var end = parseFloat(el.getAttribute('data-count'));
-    var suffix = el.getAttribute('data-suffix') || '';
-    var isYear = end > 1900;
-    if (reduced) { el.textContent = (isYear ? end : end) + suffix; return; }
+    var finalText = el.getAttribute('data-count') + (el.getAttribute('data-suffix') || '');
+    el.textContent = finalText;
+    if (reduced) return;
+    var row = el.closest('.vf-stats, .stats');
+    var delay = row ? 0.14 * Array.prototype.indexOf.call(row.querySelectorAll('[data-count]'), el) : 0;
     ScrollTrigger.create({
-      trigger: el, start: 'top 90%', once: true,
+      trigger: el, start: 'top 88%', once: true,
       onEnter: function () {
-        var o = { v: isYear ? end - 60 : 0 };
-        gsap.to(o, {
-          v: end, duration: 1.6, ease: 'power2.out',
-          onUpdate: function () { el.textContent = Math.round(o.v) + suffix; },
-          onComplete: function () { el.textContent = end + suffix; }
-        });
+        gsap.delayedCall(delay, function () { scrambleYear(el, finalText, { duration: 0.9 }); });
       }
     });
   });
@@ -179,7 +176,10 @@
     if (frames[0]) frames[0].style.opacity = 1;
     if (stages[0]) stages[0].style.opacity = 1;
     ScrollTrigger.create({
-      trigger: seq, start: 'top top', end: '+=220%', pin: true, scrub: 0.5, anticipatePin: 1,
+      // refreshPriority: this pin must refresh before the generic triggers created
+      // above it, so everything below the sequence measures pin-spaced positions
+      // (otherwise reveals/decodes fire ~220vh early, offscreen, while pinned)
+      trigger: seq, start: 'top top', end: '+=220%', pin: true, scrub: 0.5, anticipatePin: 1, refreshPriority: 1,
       onUpdate: function (self) {
         var p = self.progress;
         var w0 = 1 - sstep((p - (b1 - tw)) / (2 * tw));
@@ -646,8 +646,8 @@
           '<div class="mega-col">' +
             '<div class="label dim">Capabilities</div>' +
             '<a href="/capabilities#ai"><span class="ix">01</span><span class="lb">AI for Healthcare &amp; Defense</span><span class="arw">→</span></a>' +
-            '<a href="/capabilities#mfg"><span class="ix">02</span><span class="lb">DoD Manufacturing</span><span class="arw">→</span></a>' +
-            '<a href="/capabilities#data"><span class="ix">03</span><span class="lb">Enterprise Data</span><span class="arw">→</span></a>' +
+            '<a href="/capabilities#data"><span class="ix">02</span><span class="lb">Enterprise Data</span><span class="arw">→</span></a>' +
+            '<a href="/capabilities#mfg"><span class="ix">03</span><span class="lb">DoD Manufacturing</span><span class="arw">→</span></a>' +
             '<a href="/capabilities#cyber"><span class="ix">04</span><span class="lb">Cybersecurity</span><span class="arw">→</span></a>' +
             '<a href="/capabilities#vf"><span class="ix">05</span><span class="lb">VFusion™</span><span class="arw">→</span></a>' +
           '</div>' +
@@ -716,8 +716,8 @@
         '<div class="mdrawer-sub">' +
           '<div class="label dim">Capabilities</div>' +
           '<a href="/capabilities#ai">AI for Healthcare &amp; Defense</a>' +
-          '<a href="/capabilities#mfg">DoD Manufacturing</a>' +
           '<a href="/capabilities#data">Enterprise Data</a>' +
+          '<a href="/capabilities#mfg">DoD Manufacturing</a>' +
           '<a href="/capabilities#cyber">Cybersecurity</a>' +
           '<a href="/capabilities#vf">VFusion™</a>' +
         '</div>' +
@@ -778,7 +778,9 @@
     if (el._scrambleTween) el._scrambleTween.kill();
     el.classList.add('is-scrambling');
 
-    var chars = finalText.split('');
+    // spaces map to a literal nbsp so the cell keeps its width (a plain space
+    // collapses to zero inside an inline-block cell)
+    var chars = finalText.split('').map(function (c) { return c === ' ' ? ' ' : c; });
     var cells = [];
     el.textContent = '';
     chars.forEach(function (c) {
@@ -798,7 +800,10 @@
       while (g === cur || g.toLowerCase() === chars[i].toLowerCase());
       return g;
     }
-    cells.forEach(function (s, i) { s.classList.add('u'); s.textContent = glyphFor(i, ''); });
+    cells.forEach(function (s, i) {
+      if (!/[0-9a-z]/i.test(chars[i])) return; // punctuation and spaces sit fixed
+      s.classList.add('u'); s.textContent = glyphFor(i, '');
+    });
 
     var head = 0.12;                                // brief all-cycling beat
     var step = (duration - head) / chars.length;    // then lock left-to-right
@@ -817,7 +822,7 @@
               cells[i].classList.remove('u');
               cells[i].textContent = chars[i];
             }
-          } else if (swap) {
+          } else if (swap && cells[i].classList.contains('u')) {
             cells[i].textContent = glyphFor(i, cells[i].textContent);
           }
         }
@@ -996,6 +1001,9 @@
         },
         end: '+=100%',
         anticipatePin: 1,
+        // refresh before the generic triggers so sections below the pin
+        // measure pin-spaced positions (same fix as the vfusion pin)
+        refreshPriority: 1,
         onUpdate: function (self) { target = Math.min(100, (self.progress / 0.88) * 100); }
       });
     }

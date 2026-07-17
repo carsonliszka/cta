@@ -318,8 +318,8 @@ html.nav-open,html.nav-open body{overflow:hidden}
 .tlx .tl .ev{position:absolute;top:0;width:clamp(150px,21vw,270px);padding:26px 0 0;transform:translateX(-50%);text-align:center}
 .tlx .tl .ev .ds{margin-inline:auto}
 .tlx .tl .ev .yr{font-variant-numeric:tabular-nums}
-.tlx .tl .ev .yr .sc{display:inline-block;text-align:center;transition:opacity .12s linear}
-.tlx .tl .ev .yr .sc.u{opacity:.35}
+.tlx .tl .ev .yr .sc,.st .n .sc{display:inline-block;text-align:center;transition:opacity .12s linear}
+.tlx .tl .ev .yr .sc.u,.st .n .sc.u{opacity:.35}
 .tl-ph .tl-ro{font-variant-numeric:tabular-nums}
 .tlx .tl .ev .yr,.tlx .tl .ev .ti,.tlx .tl .ev .ds{transition:opacity .55s var(--ease),transform .65s var(--ease)}
 .tlx .tl .ev .yr.is-scrambling{transition:opacity .55s var(--ease)}

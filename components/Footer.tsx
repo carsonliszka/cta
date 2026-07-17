@@ -19,7 +19,7 @@ export default function Footer() {
           </div>
 
           <div className="sf-sec sf-place">
-            <div className="sf-built">Rockville, Maryland</div>
+            <div className="sf-built">Encinitas, California</div>
             <div className="sf-links">
               <a href="/privacy">Privacy Policy</a>
               <a href="/terms">Terms of Service</a>
@@ -33,8 +33,8 @@ export default function Footer() {
           <div className="sf-hd">Capabilities</div>
           <div className="sf-nav">
             <a href="/capabilities#ai">AI &amp; Defense</a>
-            <a href="/capabilities#mfg">Manufacturing</a>
             <a href="/capabilities#data">Enterprise Data</a>
+            <a href="/capabilities#mfg">Manufacturing</a>
             <a href="/capabilities#cyber">Cybersecurity</a>
             <a href="/capabilities#vf">VFusion</a>
           </div>

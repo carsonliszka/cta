@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Capabilities · CTA Inc.",
   description:
-    "Applied AI, DoD manufacturing, enterprise data, and cybersecurity for mission-critical operations. Home of the VFusion semantic enrichment engine.",
+    "Applied AI, enterprise data, DoD manufacturing, and cybersecurity for mission-critical operations. Home of the VFusion semantic enrichment engine.",
 };
 
 export default function Capabilities() {
@@ -17,7 +17,7 @@ export default function Capabilities() {
             <span className="label dim r" data-rv>Defense · Intelligence · Healthcare<br />Est. 1979 · ISO 9001:2015 · CMMC</span>
           </div>
           <h1 className="disp" data-split>Engineered for mission-critical operations</h1>
-          <p className="lead" data-rv>Applied AI, defense manufacturing, enterprise data, and cybersecurity, built for the agencies and enterprises where the cost of being wrong is measured in missions and lives.</p>
+          <p className="lead" data-rv>Applied AI, enterprise data, defense manufacturing, and cybersecurity, built for the agencies and enterprises where the cost of being wrong is measured in missions and lives.</p>
         </div>
       </header>
 
@@ -77,11 +77,36 @@ export default function Capabilities() {
           </div>
         </section>
 
+        <article className="cap2 deep" id="data" data-frame>
+          <div className="bg"><img src="/assets/img/datacenter.jpg" alt="Enterprise data center" /></div>
+          <div className="wrap inner egrid">
+            <div className="rail">
+              <div className="cixn disp" data-rv>02</div>
+              <div className="label dim" data-rv>Data</div>
+              <div className="label dim" data-rv>Business Intelligence</div>
+            </div>
+            <div className="body">
+              <h2 className="disp" data-split>Enterprise data applications</h2>
+              <p data-rv>Information is the one indispensable asset, but raw data is only a raw material. It has to be cultivated, purposed, crafted, and optimized before it delivers insight: reliable, purpose-matched indicators that tell you who, what, when, where, why, and how much.</p>
+              <p data-rv>We support the entire lifecycle, from requirements and strategy through design, engineering, rollout, and optimization. For the U.S. Navy F/A-18 and EA-18G program, CTA built a web-based suite for financial planning, funds execution, risk, and project management, centralizing cost and management data and automating its reporting.</p>
+              <a className="go" href="/projects">See the work <span className="arw">→</span></a>
+            </div>
+            <div className="dat">
+              <div className="spec" data-rv>
+                <div className="r"><span className="k">Lifecycle</span><span className="v">Requirements → Optimization</span></div>
+                <div className="r"><span className="k">Practice</span><span className="v">Enterprise Business Intelligence</span></div>
+                <div className="r"><span className="k">Method</span><span className="v">Cultivate · Purpose · Craft</span></div>
+                <div className="r"><span className="k">Output</span><span className="v">Reliable, Actionable Insight</span></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
         <article className="cap2 deep" id="mfg" data-frame>
           <div className="bg"><img src="/assets/img/pods-bay.jpg" alt="DLQ-9 electronic-warfare pods in CTA's facility" /></div>
           <div className="wrap inner egrid">
             <div className="rail">
-              <div className="cixn disp" data-rv>02</div>
+              <div className="cixn disp" data-rv>03</div>
               <div className="label dim" data-rv>Hardware</div>
               <div className="label dim" data-rv>DoD Manufacturing</div>
             </div>
@@ -105,31 +130,6 @@ export default function Capabilities() {
                 <div className="r"><span className="k">Delivered</span><span className="v">600+ EW Pod &amp; System Variants</span></div>
                 <div className="r"><span className="k">Platform</span><span className="v">U.S. Navy · EA-18G Growler</span></div>
                 <div className="r"><span className="k">Contracts</span><span className="v">Cost · Fixed-Price · T&amp;M IDIQ</span></div>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <article className="cap2 deep" id="data" data-frame>
-          <div className="bg"><img src="/assets/img/datacenter.jpg" alt="Enterprise data center" /></div>
-          <div className="wrap inner egrid">
-            <div className="rail">
-              <div className="cixn disp" data-rv>03</div>
-              <div className="label dim" data-rv>Data</div>
-              <div className="label dim" data-rv>Business Intelligence</div>
-            </div>
-            <div className="body">
-              <h2 className="disp" data-split>Enterprise data applications</h2>
-              <p data-rv>Information is the one indispensable asset, but raw data is only a raw material. It has to be cultivated, purposed, crafted, and optimized before it delivers insight: reliable, purpose-matched indicators that tell you who, what, when, where, why, and how much.</p>
-              <p data-rv>We support the entire lifecycle, from requirements and strategy through design, engineering, rollout, and optimization. For the U.S. Navy F/A-18 and EA-18G program, CTA built a web-based suite for financial planning, funds execution, risk, and project management, centralizing cost and management data and automating its reporting.</p>
-              <a className="go" href="/projects">See the work <span className="arw">→</span></a>
-            </div>
-            <div className="dat">
-              <div className="spec" data-rv>
-                <div className="r"><span className="k">Lifecycle</span><span className="v">Requirements → Optimization</span></div>
-                <div className="r"><span className="k">Practice</span><span className="v">Enterprise Business Intelligence</span></div>
-                <div className="r"><span className="k">Method</span><span className="v">Cultivate · Purpose · Craft</span></div>
-                <div className="r"><span className="k">Output</span><span className="v">Reliable, Actionable Insight</span></div>
               </div>
             </div>
           </div>

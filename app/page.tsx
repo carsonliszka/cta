@@ -81,33 +81,10 @@ export default function Home() {
             </div>
           </article>
           <article className="cap2" data-frame>
-            <div className="bg"><img src="/assets/img/pods-bay.jpg" alt="DLQ-9 electronic-warfare pods in CTA's facility" /></div>
-            <div className="wrap inner egrid">
-              <div className="rail">
-                <div className="cixn disp" data-rv>02</div>
-                <div className="label dim" data-rv>Hardware</div>
-                <div className="label dim" data-rv>DoD Manufacturing</div>
-              </div>
-              <div className="body">
-                <h2 className="disp" data-split>DoD manufacturing</h2>
-                <p data-rv>ISO 9001:2015-certified fabrication since 1995. Electronic Warfare pod and pod-system variants, each thousands of parts and hundreds of interconnections, integrated into U.S. Navy manned and unmanned aircraft.</p>
-                <a className="go" href="/capabilities#mfg">View capabilities <span className="arw">→</span></a>
-              </div>
-              <div className="dat">
-                <div className="spec" data-rv>
-                  <div className="r"><span className="k">Since</span><span className="v">1995</span></div>
-                  <div className="r"><span className="k">Certified</span><span className="v">ISO 9001:2015</span></div>
-                  <div className="r"><span className="k">Delivered</span><span className="v">600+ EW Pod &amp; System Variants</span></div>
-                  <div className="r"><span className="k">Platform</span><span className="v">U.S. Navy · EA-18G Growler</span></div>
-                </div>
-              </div>
-            </div>
-          </article>
-          <article className="cap2" data-frame>
             <div className="bg"><img src="/assets/img/datacenter.jpg" alt="Enterprise data center" /></div>
             <div className="wrap inner egrid">
               <div className="rail">
-                <div className="cixn disp" data-rv>03</div>
+                <div className="cixn disp" data-rv>02</div>
                 <div className="label dim" data-rv>Data</div>
                 <div className="label dim" data-rv>Business Intelligence</div>
               </div>
@@ -122,6 +99,29 @@ export default function Home() {
                   <div className="r"><span className="k">Practice</span><span className="v">Enterprise Business Intelligence</span></div>
                   <div className="r"><span className="k">Method</span><span className="v">Cultivate · Purpose · Craft</span></div>
                   <div className="r"><span className="k">Output</span><span className="v">Reliable, Actionable Insight</span></div>
+                </div>
+              </div>
+            </div>
+          </article>
+          <article className="cap2" data-frame>
+            <div className="bg"><img src="/assets/img/pods-bay.jpg" alt="DLQ-9 electronic-warfare pods in CTA's facility" /></div>
+            <div className="wrap inner egrid">
+              <div className="rail">
+                <div className="cixn disp" data-rv>03</div>
+                <div className="label dim" data-rv>Hardware</div>
+                <div className="label dim" data-rv>DoD Manufacturing</div>
+              </div>
+              <div className="body">
+                <h2 className="disp" data-split>DoD manufacturing</h2>
+                <p data-rv>ISO 9001:2015-certified fabrication since 1995. Electronic Warfare pod and pod-system variants, each thousands of parts and hundreds of interconnections, integrated into U.S. Navy manned and unmanned aircraft.</p>
+                <a className="go" href="/capabilities#mfg">View capabilities <span className="arw">→</span></a>
+              </div>
+              <div className="dat">
+                <div className="spec" data-rv>
+                  <div className="r"><span className="k">Since</span><span className="v">1995</span></div>
+                  <div className="r"><span className="k">Certified</span><span className="v">ISO 9001:2015</span></div>
+                  <div className="r"><span className="k">Delivered</span><span className="v">600+ EW Pod &amp; System Variants</span></div>
+                  <div className="r"><span className="k">Platform</span><span className="v">U.S. Navy · EA-18G Growler</span></div>
                 </div>
               </div>
             </div>
